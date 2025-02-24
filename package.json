@@ -2,6 +2,10 @@
   "name": "natours-api",
   "module": "app.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun --hot app.ts",
+    "build": "bun build --compile --minify --sourcemap ./app.ts --outfile myapp"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/express": "^5.0.0",
