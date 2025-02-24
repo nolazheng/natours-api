@@ -1,15 +1,22 @@
 import express from 'express';
+import morgan from 'morgan';
+import tourRouter from '@/routes/tour';
+import userRouter from '@/routes/user';
 
+// config
+const port = 3000;
+const baseUrl = '/api/v1';
+
+// create express app
 const app = express();
-const port = 8080;
 
-app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello, World!' });
-});
+// middleware
+app.use(morgan('dev'));
+app.use(express.json());
 
-app.post('/', (req, res) => {
-  res.send('Got a POST request');
-});
+// routes
+app.use(`${baseUrl}/tours`, tourRouter);
+app.use(`${baseUrl}/users`, userRouter);
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
