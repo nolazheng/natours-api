@@ -1,11 +1,20 @@
 import express from 'express';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
 import userRouter from '@/routes/user';
 
 // config
 const port = process.env.PORT || 3000;
 const baseUrl = '/api/v1';
+
+const DB = process.env.DATABASE.replace(
+  '<db_password>',
+  process.env.DATABASE_PASSWORD
+);
+mongoose.connect(DB).then((connect) => {
+  console.log('DB connection successful');
+});
 
 // create express app
 const app = express();
