@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import { Tour } from '@/models/tour';
 import { createQueryBuilder } from '@/utils/query-builder';
+import { catchAsyncError } from './error';
+import createAppError from '@/utils/error-handle';
 
 export const aliasTopTours = async (
   req: Request,
@@ -14,11 +16,8 @@ export const aliasTopTours = async (
 };
 
 // GET
-export const getAllTours = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getAllTours = catchAsyncError(
+  async (req, res, next): Promise<void> => {
     const query = createQueryBuilder(Tour.find(), req.query)
       .filter()
       .sort()
@@ -26,36 +25,25 @@ export const getAllTours = async (
       .paginate()
       .build();
 
-    // if (req.query.page) {
-    //   const totalDocs = await Tour.countDocuments();
-    //   if (page > Math.ceil(totalDocs / limit)) {
-    //     res.status(404).json({ status: 'fail', message: 'Page not found' });
-    //     return;
-    //   }
-    // }
-
     const tours = await query;
     res.status(200).json({ status: 'success', data: { tours } });
-  } catch (err) {
-    res.status(500).json({ status: 'fail', message: err });
   }
-};
+);
 
-export const getTour = async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id;
-  try {
-    const tour = await Tour.findOne({ _id: id });
+export const getTour = catchAsyncError(
+  async (req, res, next): Promise<void> => {
+    const id = req.params.id;
+    const tour = await Tour.findById(id);
+    if (!tour) {
+      return next(createAppError('Tour not found', 404));
+    }
+
     res.status(200).json({ status: 'success', data: { tour } });
-  } catch (err) {
-    res.status(500).json({ status: 'fail', message: err });
   }
-};
+);
 
-export const getTourStats = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getTourStats = catchAsyncError(
+  async (req, res, next): Promise<void> => {
     const stats = await Tour.aggregate([
       {
         $match: { ratingsAverage: { $gte: 4.5 } },
@@ -76,16 +64,11 @@ export const getTourStats = async (
       },
     ]);
     res.status(200).json({ status: 'success', data: { stats } });
-  } catch (err) {
-    res.status(500).json({ status: 'fail', message: err });
   }
-};
+);
 
-export const getMonthlyPlan = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const getMonthlyPlan = catchAsyncError(
+  async (req, res, next): Promise<void> => {
     const year = req.params.year;
     const plan = await Tour.aggregate([
       {
@@ -117,57 +100,40 @@ export const getMonthlyPlan = async (
       },
     ]);
     res.status(200).json({ status: 'success', data: { plan } });
-  } catch (err) {
-    res.status(500).json({ status: 'fail', message: err });
   }
-};
+);
 
 // POST
-export const createTour = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const createTour = catchAsyncError(
+  async (req, res, next): Promise<void> => {
     const newTour = await Tour.create(req.body);
     res.status(201).json({ status: 'success', data: { tour: newTour } });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
   }
-};
+);
 
 // PATCH
-export const updateTour = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const updateTour = catchAsyncError(
+  async (req, res, next): Promise<void> => {
     const id = req.params.id;
     const tour = await Tour.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
     });
     if (!tour) {
-      res.status(404).json({ status: 'fail', message: 'Tour not found' });
+      return next(createAppError('Tour not found', 404));
     }
     res.status(200).json({ status: 'success', data: { tour } });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
   }
-};
+);
 
 // DELETE
-export const deleteTour = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
+export const deleteTour = catchAsyncError(
+  async (req, res, next): Promise<void> => {
     const id = req.params.id;
     const tour = await Tour.findByIdAndDelete(id);
     if (!tour) {
-      res.status(404).json({ status: 'fail', message: 'Tour not found' });
+      return next(createAppError('Tour not found', 404));
     }
     res.status(204).json({ status: 'success', data: null });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err });
   }
-};
+);

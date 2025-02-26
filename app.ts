@@ -3,6 +3,16 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
 import userRouter from '@/routes/user';
+import createAppError from './utils/error-handle';
+import { handleGlobalError } from './controllers/error';
+
+process.on('uncaughtException', (err: any) => {
+  console.error(err.name, err.message);
+  console.log('UNCAUGHT EXCEPTION! Shutting down...');
+  server.close(() => {
+    process.exit(1);
+  });
+});
 
 // config
 const port = process.env.PORT || 3000;
@@ -30,6 +40,22 @@ app.use(express.static(`${import.meta.dirname}/public`));
 app.use(`${baseUrl}/tours`, tourRouter);
 app.use(`${baseUrl}/users`, userRouter);
 
-app.listen(port, () => {
+app.all('*', (req, res, next) => {
+  next(
+    createAppError(`Could not find ${req.originalUrl} on this server!`, 404)
+  );
+});
+
+app.use(handleGlobalError);
+
+const server = app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
+});
+
+process.on('unhandledRejection', (err: any) => {
+  console.error(err.name, err.message);
+  console.log('UNHANDLED REJECTION! Shutting down...');
+  server.close(() => {
+    process.exit(1);
+  });
 });
