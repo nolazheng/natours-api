@@ -1,5 +1,10 @@
 import express from 'express';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
 import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
 import userRouter from '@/routes/user';
@@ -30,10 +35,51 @@ mongoose.connect(DB).then((connect) => {
 const app = express();
 
 // middleware
+
+// security HTTP headers
+app.use(helmet());
+
+// dev logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-app.use(express.json());
+
+// limit requests
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000, // 1 hour,
+  message: 'Too many requests from this IP, please try again later.',
+});
+app.use('/api', limiter);
+
+// parse JSON request body
+app.use(
+  express.json({
+    limit: '100kb',
+  })
+);
+
+// data sanitization against SQL injection
+app.use(mongoSanitize());
+
+// xss
+app.use(xss());
+
+// prevent parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
+
+// serve static files from the public folder (public/images, public/css etc.)
 app.use(express.static(`${import.meta.dirname}/public`));
 
 // routes
