@@ -3,14 +3,16 @@ import {
   login,
   protect,
   resetPassword,
+  restrictTo,
   signUp,
   updateMe,
   updatePassword,
 } from '@/controllers/auth';
 import {
-  createUser,
+  deleteMe,
   deleteUser,
   getAllUsers,
+  getMeId,
   getUser,
   updateUser,
 } from '@/controllers/user';
@@ -21,10 +23,17 @@ router.post('/login', login);
 router.post('/signup', signUp);
 router.post('/forgot-password', forgotPassword);
 router.patch('/reset-password/:token', resetPassword);
-router.patch('/update-my-password', protect, updatePassword);
-router.patch('/update-me', protect, updateMe);
-router.patch('/delete-me', protect, deleteUser);
-router.route('/').get(getAllUsers).post(createUser);
+
+router.use(protect);
+// !add protect for all routes after this line
+router.patch('/update-my-password', updatePassword);
+router.get('/me', getMeId, getUser);
+router.patch('/update-me', updateMe);
+router.patch('/delete-me', deleteMe);
+
+router.use(restrictTo('admin'));
+// !add restrictTo admin for all routes after this line
+router.route('/').get(getAllUsers);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 export default router;

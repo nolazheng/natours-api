@@ -1,35 +1,20 @@
-import type { Request, Response } from 'express';
 import { catchAsyncError } from './error';
 import { User } from '@/models/user';
+import { deleteOne, getAll, getOne, updateOne } from '@/factory/handler';
+import type { Request, Response, NextFunction } from 'express';
 
-export const getAllUsers = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    const query = User.find();
+export const getAllUsers = getAll(User);
+export const getUser = getOne(User);
+// DO BOT update passwords here
+export const updateUser = updateOne(User);
+export const deleteUser = deleteOne(User);
 
-    const users = await query;
-    res.status(200).json({ status: 'success', data: { users } });
-  }
-);
-
-export const createUser = (req: Request, res: Response): void => {
-  res
-    .status(500)
-    .json({ status: 'error', message: 'route is not yet defined' });
+export const getMeId = (req: Request, res: Response, next: NextFunction) => {
+  req.params.id = (req as any).user.id;
+  next();
 };
 
-export const getUser = (req: Request, res: Response): void => {
-  res
-    .status(500)
-    .json({ status: 'error', message: 'route is not yet defined' });
-};
-
-export const updateUser = (req: Request, res: Response): void => {
-  res
-    .status(500)
-    .json({ status: 'error', message: 'route is not yet defined' });
-};
-
-export const deleteUser = catchAsyncError(async (req, res, next) => {
+export const deleteMe = catchAsyncError(async (req, res, next) => {
   await User.findByIdAndUpdate((req as any).user.id, { active: false });
   res.status(204).json({
     status: 'success',

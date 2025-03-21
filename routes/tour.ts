@@ -17,12 +17,17 @@ const router = express.Router();
 router.use('/:id/reviews', reviewRouter);
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 router.route('/stats').get(getTourStats);
-router.route('/').get(protect, getAllTours).post(createTour);
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router
+  .route('/')
+  .get(getAllTours)
+  .post(protect, restrictTo('admin', 'lead-guide'), createTour);
+router
+  .route('/monthly-plan/:year')
+  .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
-  .delete(protect, restrictTo('admin', 'leader-guide'), deleteTour);
+  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
+  .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
 
 export default router;

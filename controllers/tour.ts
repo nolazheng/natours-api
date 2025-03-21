@@ -1,8 +1,13 @@
 import type { Request, Response } from 'express';
 import { Tour } from '@/models/tour';
-import { createQueryBuilder } from '@/utils/query-builder';
 import { catchAsyncError } from './error';
-import createAppError from '@/utils/error-handle';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from '@/factory/handler';
 
 export const aliasTopTours = async (
   req: Request,
@@ -14,33 +19,6 @@ export const aliasTopTours = async (
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
 };
-
-// GET
-export const getAllTours = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    const query = createQueryBuilder(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate()
-      .build();
-
-    const tours = await query;
-    res.status(200).json({ status: 'success', data: { tours } });
-  }
-);
-
-export const getTour = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    const id = req.params.id;
-    const tour = await Tour.findById(id).populate('reviews');
-    if (!tour) {
-      return next(createAppError('Tour not found', 404));
-    }
-
-    res.status(200).json({ status: 'success', data: { tour } });
-  }
-);
 
 export const getTourStats = catchAsyncError(
   async (req, res, next): Promise<void> => {
@@ -103,37 +81,8 @@ export const getMonthlyPlan = catchAsyncError(
   }
 );
 
-// POST
-export const createTour = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    const newTour = await Tour.create(req.body);
-    res.status(201).json({ status: 'success', data: { tour: newTour } });
-  }
-);
-
-// PATCH
-export const updateTour = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    const id = req.params.id;
-    const tour = await Tour.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!tour) {
-      return next(createAppError('Tour not found', 404));
-    }
-    res.status(200).json({ status: 'success', data: { tour } });
-  }
-);
-
-// DELETE
-export const deleteTour = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    const id = req.params.id;
-    const tour = await Tour.findByIdAndDelete(id);
-    if (!tour) {
-      return next(createAppError('Tour not found', 404));
-    }
-    res.status(204).json({ status: 'success', data: null });
-  }
-);
+export const getAllTours = getAll(Tour);
+export const getTour = getOne(Tour, { path: 'reviews' });
+export const createTour = createOne(Tour);
+export const updateTour = updateOne(Tour);
+export const deleteTour = deleteOne(Tour);

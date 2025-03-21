@@ -1,25 +1,25 @@
-import { catchAsyncError } from './error';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from '@/factory/handler';
 import { Review } from '@/models/review';
+import type { Request, Response, NextFunction } from 'express';
 
-export const getAllReviews = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    let filter = {};
-    if (req.query.tour) filter = { tour: req.params.id };
-    const reviews = await Review.find(filter);
+export const setTourUserIds = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = (req as any).user.id;
+  next();
+};
 
-    res
-      .status(200)
-      .json({ status: 'success', results: reviews.length, data: { reviews } });
-  }
-);
-
-export const createReview = catchAsyncError(
-  async (req, res, next): Promise<void> => {
-    if (!req.body.tour) req.body.tour = req.params.tourId;
-    if (!req.body.user) req.body.user = (req as any).user.id;
-
-    const newReview = await Review.create(req.body);
-
-    res.status(201).json({ status: 'success', data: { review: newReview } });
-  }
-);
+export const getAllReviews = getAll(Review);
+export const getReview = getOne(Review);
+export const createReview = createOne(Review);
+export const updateReview = updateOne(Review);
+export const deleteReview = deleteOne(Review);
