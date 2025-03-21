@@ -10,9 +10,11 @@ import {
   updateTour,
 } from '@/controllers/tour';
 import { protect, restrictTo } from '@/controllers/auth';
+import reviewRouter from '@/routes/review';
 
 const router = express.Router();
 
+router.use('/:id/reviews', reviewRouter);
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 router.route('/stats').get(getTourStats);
 router.route('/').get(protect, getAllTours).post(createTour);

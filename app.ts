@@ -8,6 +8,7 @@ import hpp from 'hpp';
 import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
 import userRouter from '@/routes/user';
+import reviewRouter from '@/routes/review';
 import createAppError from './utils/error-handle';
 import { handleGlobalError } from './controllers/error';
 
@@ -85,6 +86,7 @@ app.use(express.static(`${import.meta.dirname}/public`));
 // routes
 app.use(`${baseUrl}/tours`, tourRouter);
 app.use(`${baseUrl}/users`, userRouter);
+app.use(`${baseUrl}/reviews`, reviewRouter);
 
 app.all('*', (req, res, next) => {
   next(

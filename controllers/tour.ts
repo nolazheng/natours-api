@@ -33,7 +33,7 @@ export const getAllTours = catchAsyncError(
 export const getTour = catchAsyncError(
   async (req, res, next): Promise<void> => {
     const id = req.params.id;
-    const tour = await Tour.findById(id);
+    const tour = await Tour.findById(id).populate('reviews');
     if (!tour) {
       return next(createAppError('Tour not found', 404));
     }
