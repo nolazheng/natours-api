@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
 import userRouter from '@/routes/user';
 import reviewRouter from '@/routes/review';
+import viewRouter from '@/routes/view';
 import createAppError from './utils/error-handle';
 import { handleGlobalError } from './controllers/error';
 
@@ -34,6 +35,11 @@ mongoose.connect(DB).then((connect) => {
 
 // create express app
 const app = express();
+
+app.set('view engine', 'pug');
+app.set('views', `${import.meta.dirname}/views`);
+// serve static files from the public folder (public/images, public/css etc.)
+app.use(express.static(`${import.meta.dirname}/public`));
 
 // middleware
 
@@ -80,10 +86,8 @@ app.use(
   })
 );
 
-// serve static files from the public folder (public/images, public/css etc.)
-app.use(express.static(`${import.meta.dirname}/public`));
-
 // routes
+app.use('/', viewRouter);
 app.use(`${baseUrl}/tours`, tourRouter);
 app.use(`${baseUrl}/users`, userRouter);
 app.use(`${baseUrl}/reviews`, reviewRouter);
