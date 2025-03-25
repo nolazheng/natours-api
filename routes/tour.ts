@@ -4,9 +4,11 @@ import {
   createTour,
   deleteTour,
   getAllTours,
+  getDistances,
   getMonthlyPlan,
   getTour,
   getTourStats,
+  getToursWithin,
   updateTour,
 } from '@/controllers/tour';
 import { protect, restrictTo } from '@/controllers/auth';
@@ -24,6 +26,8 @@ router
 router
   .route('/monthly-plan/:year')
   .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
+router.route('/tours-within').get(getToursWithin);
+router.route('/distances').get(getDistances);
 router
   .route('/:id')
   .get(getTour)
