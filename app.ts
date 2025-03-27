@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
+import compression from 'compression';
 import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
 import userRouter from '@/routes/user';
@@ -85,6 +86,8 @@ app.use(
     ],
   })
 );
+
+app.use(compression());
 
 // routes
 app.use('/', viewRouter);

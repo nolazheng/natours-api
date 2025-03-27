@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "@types/compression": "^1.7.5",
     "@types/express": "^5.0.0",
     "@types/hpp": "^0.2.6",
     "@types/jsonwebtoken": "^9.0.9",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "compression": "^1.8.0",
     "express": "^4.21.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^7.5.0",
