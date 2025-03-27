@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
 import mongoose from 'mongoose';
 import tourRouter from '@/routes/tour';
@@ -65,6 +66,7 @@ app.use(
     limit: '100kb',
   })
 );
+app.use(cookieParser());
 
 // data sanitization against SQL injection
 app.use(mongoSanitize());
@@ -86,7 +88,14 @@ app.use(
   })
 );
 
+// TEST
+app.use((req, res, next) => {
+  console.log('🚀 ~ app.use ~ req:', req.cookies);
+  next();
+});
+
 // routes
+
 app.use('/', viewRouter);
 app.use(`${baseUrl}/tours`, tourRouter);
 app.use(`${baseUrl}/users`, userRouter);

@@ -84,6 +84,8 @@ export const protect = catchAsyncError(
       req.headers.authorization.startsWith('Bearer')
     ) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies['jwt-token']) {
+      token = req.cookies['jwt-token'];
     }
 
     if (!token) {
@@ -112,6 +114,35 @@ export const protect = catchAsyncError(
     }
 
     (req as any).user = currentUser;
+    next();
+  }
+);
+
+// Only for render pages, no errors
+export const isLoggedIn = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (req.cookies['jwt-token']) {
+      // 1) verify token
+      const decoded = jwt.verify(
+        req.cookies['jwt-token'],
+        process.env.JWT_SECRET
+      ) as jwt.JwtPayload;
+
+      // 2) check if user exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+
+      // 3) check if user changed password after token was issued
+      if (decoded.iat && currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+
+      // User is logged
+      res.locals.user = currentUser;
+      return next();
+    }
     next();
   }
 );
