@@ -1,7 +1,16 @@
 {
   "version": 2,
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
-  "installCommand": "bun install",
-  "buildCommand": "bun run build",
-  "developmentCommand": "bun run prod"
+  "builds": [
+    {
+      "src": "app.ts",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["dist/**"] }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.ts"
+    }
+  ]
 }

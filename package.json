@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --hot app.ts",
+    "start": "bun app.js",
     "debug": "bun run --inspect app.ts",
     "prod": "bun --env-file=.env.production --hot app.ts",
     "build": "bun build --compile --minify --sourcemap ./app.ts --outfile myapp"
